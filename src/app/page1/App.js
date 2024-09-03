@@ -4,10 +4,15 @@ import React, { useState } from 'react';
 import '../maelie.css';
 
 function App() {
+    const [ id, setId ]                     = useState( null );
     const [ name, setName ]                 = useState( '' );
     const [ room, setRoom ]                 = useState( '' );
     const [ date, setDate ]                 = useState( '' );
     const [ description, setDescription ]   = useState( '' );
+
+    const handleIdChange = ( e ) => {
+        setId( e.target.value );
+    }
 
     const handleNameChange = ( e ) => {
         setName( e.target.value );
@@ -28,6 +33,10 @@ function App() {
     return (
         <div className="container">
             <div className="form-group">
+                <label htmlFor="id">Id:</label><br/>
+                <input type="text" name="id" onChange={handleIdChange} value={id}/>
+            </div>
+            <div className="form-group">
                 <label htmlFor="name">Name:</label><br/>
                 <input type="text" name="name" onChange={handleNameChange} value={name}/>
             </div>
@@ -47,7 +56,10 @@ function App() {
                 <label htmlFor="description">Description:</label>
                 <textarea rows="8" cols="40" onChange={handleDescriptionChange} value={description}/>
             </div>
-            <div className="form-group">
+            <div>
+                <button> Load </button>
+            </div>
+            <div>
                 <button> Submit </button>
             </div>
         </div>
