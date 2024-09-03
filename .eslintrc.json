@@ -1,3 +1,4 @@
 {
+  "react/jsx-key": "off",
   "extends": "next/core-web-vitals"
 }

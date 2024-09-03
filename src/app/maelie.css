@@ -1,0 +1,67 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+.title {
+    font-size: 32px;
+    color: #4CAF50;
+    margin-bottom: 20px;
+    text-align: center;
+    text-shadow: 1px 1px 2px #888;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+table {
+    width: 100%;
+    margin: 0 auto;
+    text-align: left;
+}
+input[type="date"],
+textarea,
+select {
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+    transition: background-color 0.3s;
+}
+textarea {
+    height: 200px;
+    resize: vertical;
+}
+input[type="date"]:hover,
+input[type="date"]:focus,
+textarea:hover,
+textarea:focus,
+select:hover,
+select:focus {
+    background-color: #e0e0e0;
+}
+.message {
+    margin-top: 20px;
+    font-size: 18px;
+    text-align: center;
+}
+.success {
+    color: green;
+}
+.failure {
+    color: red;
+}
+.add-file-btn {
+    color: #fff;
+    background-color: red;
+    border: none;
+    padding: 5px 10px;
+    margin-top: 10px;
+}
+.eye-icon {
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+.form-group {
+    position: relative;
+}
