@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { selectAll, selectOne, updateOne, insertOne } from '../accessDb';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../maelie.css';
@@ -15,6 +15,27 @@ function App() {
     const [ date, setDate ]                 = useState( '' );
     const [ description, setDescription ]   = useState( '' );
     const [ errorMes, setErrorMes ]         = useState( '' );
+
+    // Register service worker for off-line operation
+    
+    useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            console.log( 'serviceWorker found' );
+//            window.addEventListener('load',
+//                () => {
+                    navigator.serviceWorker.register('/sw.js').then(
+                        (registration) => {
+                            console.log('Service Worker registered with scope: ', registration.scope);
+                        },
+                        (error) => {
+                            console.error('Service Worker registration failed: ', error);
+                        }
+                    );
+//                }
+//            );
+        }
+    }, []);
+    
 
     // Handler functions for input forms
     const handleIdChange            = ( e ) => setId( e.target.value );
