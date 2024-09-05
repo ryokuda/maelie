@@ -17,32 +17,53 @@ function App() {
     const [ errorMes, setErrorMes ]         = useState( '' );
 
     // Register service worker for off-line operation
-    
     useEffect(() => {
         if ('serviceWorker' in navigator) {
             console.log( 'serviceWorker found' );
-//            window.addEventListener('load',
-//                () => {
-                    navigator.serviceWorker.register('/sw.js').then(
-                        (registration) => {
-                            console.log('Service Worker registered with scope: ', registration.scope);
-                        },
-                        (error) => {
-                            console.error('Service Worker registration failed: ', error);
-                        }
-                    );
-//                }
-//            );
+            navigator.serviceWorker.register('/sw.js').then(
+                (registration) => {
+                    console.log('Service Worker registered with scope: ', registration.scope);
+                },
+                (error) => {
+                    console.error('Service Worker registration failed: ', error);
+                }
+            );
         }
     }, []);
+
+    // Restore status variables at the first rendering
+    useEffect(() => {
+        loadStatus( 'id',           setId );
+        loadStatus( 'state',        setState );
+        loadStatus( 'name',         setName );
+        loadStatus( 'room',         setRoom );
+        loadStatus( 'date',         setDate );
+        loadStatus( 'description',  setDescription );
+    }, [] );
     
+    // Save and load status variables to and from LocalStrage
+    const saveStatus = ( key, value ) => {
+        localStorage.setItem( key, JSON.stringify(value));
+    };
+
+    const loadStatus = ( key, setFn ) => {
+        const valueJSON = localStorage.getItem( key );
+        try {
+            if( valueJSON ) {
+                const value = JSON.parse( valueJSON );
+                setFn( value );
+            }
+        } catch( err ) {
+            console.log( err.message );
+        }
+    }
 
     // Handler functions for input forms
-    const handleIdChange            = ( e ) => setId( e.target.value );
-    const handleNameChange          = ( e ) => setName( e.target.value );
-    const handleRoomChange          = ( e ) => setRoom( e.target.value );
-    const handleDateChange          = ( e ) => setDate( e.target.value );
-    const handleDescriptionChange   = ( e ) => setDescription( e.target.value );
+    const handleIdChange            = e => { setId( e.target.value );           saveStatus( 'id', e.target.value ); }
+    const handleNameChange          = e => { setName( e.target.value );         saveStatus( 'name', e.target.value ); }
+    const handleRoomChange          = e => { setRoom( e.target.value );         saveStatus( 'room', e.target.value ); }
+    const handleDateChange          = e => { setDate( e.target.value );         saveStatus( 'date', e.target.value ); }
+    const handleDescriptionChange   = e => { setDescription( e.target.value );  saveStatus( 'description', e.target.value ); }
     
     // Handle error messag
     const showErrorMes = ( message ) => {
@@ -52,18 +73,18 @@ function App() {
 
     // Handle Load button clicked
     const load = async () => {
-        setState( 'loading' );
+        setState( 'loading' ); saveStatus( 'state', 'loading' );
         const { record, error } = await selectOne( id );
         if( error ) {
             console.log( error.message );
             showErrorMes( error.message );
-            setState( 'load' );
+            setState( 'load' );                     saveStatus( 'state', 'load' );
         } else {
-            setName( record.name );
-            setRoom( record.room );
-            setDate( record.date );
-            setDescription( record.description );
-            setState( 'editing' );
+            setName( record.name );                 saveStatus( 'name',         record.name );
+            setRoom( record.room );                 saveStatus( 'room',         record.room );
+            setDate( record.date );                 saveStatus( 'date',         record.date );
+            setDescription( record.description );   saveStatus( 'description',  record.description );
+            setState( 'editing' );                  saveStatus( 'state',        'editing' );
         }
     }
 
@@ -80,7 +101,7 @@ function App() {
 
     // Handle DOne button clicked
     const done = () => {
-        setState( 'load' ); // return to initial state
+        setState( 'load' );  saveStatus( 'state', 'load' ); // return to initial state
     }
 
     // Render

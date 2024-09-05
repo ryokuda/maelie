@@ -16,7 +16,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then((response) => {
         if (response) {
-          return response; // キャッシュが存在する場合はキャッシュを返す
+          return response; // Return cached response if exists
         }
   
         return fetch(event.request).then((networkResponse) => {
@@ -28,7 +28,7 @@ self.addEventListener('fetch', (event) => {
           ) {
             const clonedResponse = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, clonedResponse); // キャッシュに追加
+              cache.put(event.request, clonedResponse); // Add to cache
             });
           } else {
             console.warn('Invalid or failed response for:', event.request.url);
