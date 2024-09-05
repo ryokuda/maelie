@@ -8,7 +8,7 @@ import '../maelie.css';
 
 function App() {
     // Definition of state variables
-    const [ state, setState ]               = useState( 'load' ); // 'load' => 'loading' => 'editing'
+    const [ state, setState ]               = useState( 'load' ); // 'load' => 'loading' => 'editing' => 'load'
     const [ id, setId ]                     = useState( '' );
     const [ name, setName ]                 = useState( '' );
     const [ room, setRoom ]                 = useState( '' );
@@ -34,7 +34,6 @@ function App() {
         setState( 'loading' );
         const { record, error } = await selectOne( id );
         if( error ) {
-            setNeedRecord( true );
             console.log( error.message );
             showErrorMes( error.message );
             setState( 'load' );
@@ -45,6 +44,22 @@ function App() {
             setDescription( record.description );
             setState( 'editing' );
         }
+    }
+
+    // Handle Save button clicked
+    const save = async () => {
+        const data = { id, name, room, date, description };
+        console.log( data );
+        const { record, error } = await updateOne( id, data );
+        if( error ) {
+            console.log( error.message );
+            showErrorMes( error.message );
+        }
+    }
+
+    // Handle DOne button clicked
+    const done = () => {
+        setState( 'load' ); // return to initial state
     }
 
     // Render
@@ -94,8 +109,9 @@ function App() {
                     <label htmlFor="description">Description:</label>
                     <textarea id="description" rows="8" cols="40" onChange={handleDescriptionChange} value={description}/>
                 </div>
-                <div>
-                    <button className="btn btn-success"> Save </button>
+                <div className="btn-group">
+                    <button className="btn btn-success" onClick={save}> Save </button>
+                    <button className="btn btn-primary" onClick={done}> Done </button>
                 </div>
                 <div className="text-warning">{errorMes}</div>
             </div>
