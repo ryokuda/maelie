@@ -152,7 +152,11 @@ function App() {
                     <textarea id="description" rows="8" cols="40" onChange={handleDescriptionChange} value={description}/>
                 </div>
                 <div className="btn-group">
-                    <button className="btn btn-success" onClick={save}> Save </button>
+                    { navigator.onLine ?
+                        <button className="btn btn-success" onClick={save}> Save </button>
+                        :
+                        <button className="btn btn-success" disabled> Save </button>
+                    }
                     <button className="btn btn-primary" onClick={done}> Done </button>
                 </div>
                 <div className="text-warning">{errorMes}</div>
