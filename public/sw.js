@@ -18,7 +18,7 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response; // Return cached response if exists
         }
-  
+  console.log( event.request.url );
         return fetch(event.request).then((networkResponse) => {
           if (
             networkResponse && 
@@ -35,8 +35,8 @@ self.addEventListener('fetch', (event) => {
           }
           return networkResponse;
         }).catch((error) => {
-          console.error('Fetching failed:', error);
-          throw error;
+          console.error('Fetching failed:', error, event.request.url );
+          //throw error;
         });
       })
     );

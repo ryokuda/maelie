@@ -15,6 +15,7 @@ function App() {
     const [ date, setDate ]                 = useState( '' );
     const [ description, setDescription ]   = useState( '' );
     const [ errorMes, setErrorMes ]         = useState( '' );
+    const [ isOnline, setIsOnline ]         = useState( true );
 
     // Register service worker for off-line operation
     useEffect(() => {
@@ -29,6 +30,20 @@ function App() {
                 }
             );
         }
+    }, []);
+
+    // Register online/offline event handler
+    useEffect(() => {
+        const handleOnline  = () => setIsOnline( true );
+        const handleOffline = () => setIsOnline( false );
+        // register event listener
+        window.addEventListener( 'online',  handleOnline );
+        window.addEventListener( 'offline', handleOffline );
+        // use cleanup function to remove event listeners,
+        return () => {
+            window.removeEventListener( 'online',   handleOnline );
+            window.removeEventListener( 'offline',  handleOffline );
+        };
     }, []);
 
     // Restore status variables at the first rendering
@@ -113,7 +128,11 @@ function App() {
                     <input type="text" className="form-control" id="id" onChange={handleIdChange} value={id}/>
                 </div>
                 <div>
+                { isOnline ?
                     <button className="btn btn-primary" onClick={load}> Load </button>
+                    :
+                    <button className="btn btn-primary" disabled> Load </button>
+                }
                 </div>
                 <div className="text-warning">{errorMes}</div>
             </div>
@@ -151,14 +170,17 @@ function App() {
                     <label htmlFor="description">Description:</label>
                     <textarea id="description" rows="8" cols="40" onChange={handleDescriptionChange} value={description}/>
                 </div>
-                <div className="btn-group">
-                    { navigator.onLine ?
+                { isOnline ?
+                    <div className="btn-group">
                         <button className="btn btn-success" onClick={save}> Save </button>
-                        :
+                        <button className="btn btn-primary" onClick={done}> Done </button>
+                    </div>
+                    :
+                    <div className="btn-group">
                         <button className="btn btn-success" disabled> Save </button>
-                    }
-                    <button className="btn btn-primary" onClick={done}> Done </button>
-                </div>
+                        <button className="btn btn-primary" disabled> Done </button>
+                    </div>
+                }
                 <div className="text-warning">{errorMes}</div>
             </div>
         );
