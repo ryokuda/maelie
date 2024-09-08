@@ -34,6 +34,8 @@ function App() {
 
     // Register online/offline event handler
     useEffect(() => {
+        setIsOnline( window.navigator.onLine );
+        console.log( window.navigator.onLine );
         const handleOnline  = () => setIsOnline( true );
         const handleOffline = () => setIsOnline( false );
         // register event listener
