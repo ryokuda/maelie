@@ -1,0 +1,52 @@
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column; /* Arrange buttons at the top vertically */
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+.button-container {
+    margin: 20px 0;
+}
+
+.container {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    border: 1px solid #ccc;
+}
+
+.overlay-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+#textArea {
+    z-index: 1; /* Place the text area in the background */
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 16px;
+    padding: 10px;
+    resize: none;
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+}
+
+#container {
+    z-index: 2; /* Bring Konva.js stage to the front */
+    width: 800px;
+    height: 600px;
+    position: absolute; /* Position absolutely to overlap */
+    top: 0;
+    left: 0;
+    cursor: crosshair; /* Initial cursor shape */
+}
+
+.eraser-cursor {
+    cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAJJJREFUOI3N0rENgCAMBVD/P6OzBV1QlNFvThmJjpMmln4rHRugMQiAoV/Md9VE2MA2dRU4BRkJd4fHsJ+UPykRElD7LYWBMsU88AAiQNrI6OugmvhpcPI8W8PAEb8uGZjLdrueWBQBKthkP+IP/x2oksoMyxAmQAAAABJRU5ErkJggg==') 4 4, auto; /* Eraser cursor shape */
+}
