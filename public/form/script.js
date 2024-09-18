@@ -17,18 +17,51 @@ let currentLine = null; // Initialization
 // Initial setup: Disable text input mode
 document.getElementById('textArea').style.pointerEvents = 'none';
 
-// Add mousedown event listener to the stage
-stage.on('mousedown', function() {
+// Add mousedown event listeners to the stage for mouse devices
+stage.on('mousedown', function(e) {
+    handleStartDrawing(e);
+});
+
+// Add mouseup event listeners to the stage for mouse devices
+stage.on('mouseup', function(e) {
+    handleEndDrawing(e);
+});
+
+// Add mousemove event listeners to the stage for mouse devices
+stage.on('mousemove', function(e) {
+    handleDrawing(e);
+});
+
+// Add touchstart event listeners to the stage for touch devices
+stage.on('touchstart', function(e) {
+    handleStartDrawing(e);
+});
+
+// Add touchend event listeners to the stage for touch devices
+stage.on('touchend', function(e) {
+    handleEndDrawing(e);
+});
+
+// Add touchmove event listeners to the stage for touch devices
+stage.on('touchmove', function(e) {
+    handleDrawing(e);
+});
+
+// Function to handle start of drawing (mousedown or touchstart)
+function handleStartDrawing(e) {
+    e.evt.preventDefault(); // Prevent default behavior (scrolling, etc.)
+
     if (isErasing) {
-        // If in eraser mode, erase line on click
-        eraseLineAtClick(stage.getPointerPosition());
+        // If in eraser mode, erase line on click or tap
+        const pos = getRelativePointerPosition(stage);
+        eraseLineAtClick(pos);
         return;
     }
 
     if (!isDrawing) return; // Do nothing if not in drawing mode
     console.log('down');
 
-    const pos = stage.getPointerPosition(); // Get current mouse position
+    const pos = getRelativePointerPosition(stage); // Get current pointer position
 
     // Create a new line
     currentLine = new Konva.Line({
@@ -42,28 +75,32 @@ stage.on('mousedown', function() {
     // Add to layer
     layer.add(currentLine);
     layer.batchDraw(); // Redraw the layer
-});
+}
 
-// Add mouseup event listener to the stage
-stage.on('mouseup', function() {
+// Function to handle end of drawing (mouseup or touchend)
+function handleEndDrawing(e) {
+    e.evt.preventDefault(); // Prevent default behavior
+
     if (!isDrawing) return; // Do nothing if not in drawing mode
     console.log('up');
     currentLine = null; // Reset currentLine
-});
+}
 
-// Add mousemove event listener to the stage
-stage.on('mousemove', function() {
+// Function to handle drawing (mousemove or touchmove)
+function handleDrawing(e) {
+    e.evt.preventDefault(); // Prevent default behavior (scrolling, etc.)
+
     if (isErasing) return; // Do nothing in eraser mode
 
     if (!isDrawing || !currentLine) return; // Do nothing if not in drawing mode or no currentLine
 
-    const pos = stage.getPointerPosition(); // Get current mouse position
+    const pos = getRelativePointerPosition(stage); // Get current pointer position
     const newPoints = currentLine.points().concat([pos.x, pos.y]); // Add points
 
     // Update line points
     currentLine.points(newPoints);
     layer.batchDraw(); // Redraw the layer
-});
+}
 
 // Draw the layer
 layer.draw();
@@ -94,6 +131,14 @@ function enableEraserMode() {
     isDrawing = false; // Disable drawing mode
     isErasing = true; // Enable eraser mode
     stage.container().style.cursor = 'pointer'; // Set cursor to pointer
+}
+
+// Function to get the relative pointer position
+function getRelativePointerPosition(node) {
+    const transform = node.getAbsoluteTransform().copy();
+    transform.invert();
+    const pos = node.getStage().getPointerPosition();
+    return transform.point(pos);
 }
 
 // Function to erase the line at the clicked position
