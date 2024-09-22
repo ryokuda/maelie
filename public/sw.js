@@ -1,7 +1,9 @@
-const CACHE_NAME = 'my-site-cache-v3';
+const CACHE_NAME = 'my-site-cache-v7';
 const urlsToCache = ['/']; // List of URL to cache the resources
+const disable_cache = true;
 
 self.addEventListener('install', (event) => {
+  if( disable_cache ) return; // do nothing
   // Postphone "installation" to after caching
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -13,12 +15,12 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    if( disable_cache ) return; // do nothing
     event.respondWith(
       caches.match(event.request).then((response) => {
         if (response) {
           return response; // Return cached response if exists
         }
-  console.log( event.request.url );
         return fetch(event.request).then((networkResponse) => {
           if (
             networkResponse && 
