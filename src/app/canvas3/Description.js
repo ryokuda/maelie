@@ -3,28 +3,31 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Stage, Layer, Line } from 'react-konva';
 
-// Descriptionコンポーネント（forwardRefを使用して親コンポーネントにデータを渡せるようにする）
 const Description = forwardRef((props, ref) => {
   const [tool, setTool] = useState('text'); // 'pen', 'eraser', or 'text'
   const [lines, setLines] = useState([]); // 描画された線のリスト
   const [lineWidth, setLineWidth] = useState(1); // ペンや消しゴムの幅
-  const [cursorStyle, setCursorStyle] = useState('default'); // カーソルスタイル
   const [isTextMode, setIsTextMode] = useState(true); // Textモードかどうか
   const stageRef = useRef(null); // Stageの参照を保存
   const isDrawing = useRef(false); // 現在描画中かどうかのフラグ
   const textAreaRef = useRef(null); // Textareaの参照
 
-  // 描画開始時のイベントハンドラー
-  const handleMouseDown = (e) => {
+  const getRelativePointerPosition = (stage) => {
+    const pos = stage.getPointerPosition();
+    return {
+      x: pos.x,
+      y: pos.y
+    };
+  };
+
+  // 描画開始時のイベントハンドラー (タッチとマウスの両方をサポート)
+  const handlePointerDown = (e) => {
     if (tool === 'pen') {
       isDrawing.current = true;
-      const pos = e.target.getStage().getPointerPosition();
+      const pos = getRelativePointerPosition(e.target.getStage());
       setLines([...lines, { tool, points: [pos.x, pos.y], strokeWidth: lineWidth }]);
     } else if (tool === 'eraser') {
-      const stage = e.target.getStage();
-      const point = stage.getPointerPosition();
-
-      // 線が消しゴム範囲内にあるかどうかを判断して最初の1本だけ消す
+      const pos = getRelativePointerPosition(e.target.getStage());
       const updatedLines = [...lines];
       for (let i = 0; i < updatedLines.length; i++) {
         const line = updatedLines[i];
@@ -32,36 +35,33 @@ const Description = forwardRef((props, ref) => {
         for (let j = 0; j < points.length; j += 2) {
           const x = points[j];
           const y = points[j + 1];
-          const distance = Math.sqrt((x - point.x) ** 2 + (y - point.y) ** 2);
+          const distance = Math.sqrt((x - pos.x) ** 2 + (y - pos.y) ** 2);
           if (distance <= 8) {
             updatedLines.splice(i, 1); // 最初に見つけた線を削除
             setLines(updatedLines);
-            return; // 1本だけ削除するのでループを抜ける
+            return;
           }
         }
       }
     }
   };
 
-  // 描画中のイベントハンドラー
-  const handleMouseMove = (e) => {
+  // 描画中のイベントハンドラー (タッチとマウスの両方をサポート)
+  const handlePointerMove = (e) => {
     if (!isDrawing.current || tool === 'text') return;
 
-    const stage = e.target.getStage();
-    const point = stage.getPointerPosition();
+    const pos = getRelativePointerPosition(e.target.getStage());
 
     if (tool === 'pen') {
       const lastLine = lines[lines.length - 1];
-      lastLine.points = lastLine.points.concat([point.x, point.y]);
-
-      // 描画中の線を更新
+      lastLine.points = lastLine.points.concat([pos.x, pos.y]);
       lines.splice(lines.length - 1, 1, lastLine);
       setLines(lines.concat());
     }
   };
 
-  // 描画終了時のイベントハンドラー
-  const handleMouseUp = () => {
+  // 描画終了時のイベントハンドラー (タッチとマウスの両方をサポート)
+  const handlePointerUp = () => {
     if (tool === 'pen') {
       isDrawing.current = false;
     }
@@ -71,25 +71,23 @@ const Description = forwardRef((props, ref) => {
   const handlePenClick = () => {
     setTool('pen');
     setLineWidth(1); // ペン幅を1pxに設定
-    setCursorStyle('default'); // 通常のカーソルに戻す
-    setIsTextMode(false); // Textモードを終了
-    textAreaRef.current.style.zIndex = -1; // Textareaを後ろに
+    setIsTextMode(false);
+    textAreaRef.current.style.zIndex = -1;
   };
 
   // 消しゴムモードに変更
   const handleEraserClick = () => {
     setTool('eraser');
     setLineWidth(16); // 消しゴム幅を16pxに設定
-    setCursorStyle('none'); // カーソルを非表示にし、カスタムカーソルを使う
-    setIsTextMode(false); // Textモードを終了
-    textAreaRef.current.style.zIndex = -1; // Textareaを後ろに
+    setIsTextMode(false);
+    textAreaRef.current.style.zIndex = -1;
   };
 
   // テキストモードに変更
   const handleTextClick = () => {
     setTool('text');
-    setIsTextMode(true); // Textモードに設定
-    textAreaRef.current.style.zIndex = 1; // Textareaを最前面に
+    setIsTextMode(true);
+    textAreaRef.current.style.zIndex = 1;
   };
 
   // 全消去
@@ -101,23 +99,10 @@ const Description = forwardRef((props, ref) => {
   // 外部からデータを取得できるようにする
   useImperativeHandle(ref, () => ({
     getData: () => ({
-      text: textAreaRef.current.value, // textareaの内容
-      konva: lines // canvas上の線のデータ
+      text: textAreaRef.current.value,
+      konva: lines
     })
   }));
-
-  // カーソルの描画
-  const handleCursorMove = (e) => {
-    if (tool === 'eraser') {
-      const cursor = document.getElementById('eraser-cursor');
-      if (cursor) {
-        const stage = e.target.getStage();
-        const point = stage.getPointerPosition();
-        cursor.style.left = `${point.x - 8}px`; // 消しゴムの中心にカーソルを合わせる
-        cursor.style.top = `${point.y - 8}px`;
-      }
-    }
-  };
 
   return (
     <div>
@@ -128,15 +113,17 @@ const Description = forwardRef((props, ref) => {
         <button onClick={handleClearClick}>Clear</button>
       </div>
 
-      {/* Konva Stageを使って描画領域を作成 */}
       <div style={{ position: 'relative' }}>
         <Stage
-          width={600} // 幅600px
-          height={400} // 高さ400px
-          style={{ border: '1px solid black', backgroundColor: 'transparent', cursor: cursorStyle }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={(e) => { handleMouseMove(e); handleCursorMove(e); }}
-          onMouseUp={handleMouseUp}
+          width={600}
+          height={400}
+          style={{ border: '1px solid black', backgroundColor: 'transparent' }}
+          onMouseDown={handlePointerDown}
+          onTouchStart={handlePointerDown}
+          onMouseMove={handlePointerMove}
+          onTouchMove={handlePointerMove}
+          onMouseUp={handlePointerUp}
+          onTouchEnd={handlePointerUp}
           ref={stageRef}
         >
           <Layer>
@@ -154,33 +141,17 @@ const Description = forwardRef((props, ref) => {
           </Layer>
         </Stage>
 
-        {/* 消しゴムモードのときに円形のカーソルを表示 */}
-        {tool === 'eraser' && (
-          <div
-            id="eraser-cursor"
-            style={{
-              position: 'absolute',
-              width: '16px',
-              height: '16px',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              borderRadius: '50%',
-              pointerEvents: 'none', // クリック操作を無効化
-            }}
-          ></div>
-        )}
-
-        {/* textareaをCanvasと重なるように配置 */}
         <textarea
           ref={textAreaRef}
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '600px', // 幅600px
-            height: '400px', // 高さ400px
+            width: '600px',
+            height: '400px',
             backgroundColor: 'transparent',
             color: 'black',
-            zIndex: isTextMode ? 1 : -1, // Textモードのときは最前面に表示
+            zIndex: isTextMode ? 1 : -1,
             border: 'none',
             outline: 'none',
             fontSize: '20px',
