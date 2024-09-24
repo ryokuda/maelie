@@ -75,11 +75,11 @@ const Description = ({ description, setDescription, konva, setKonva }) => {
 
   return (
     <div>
-      <div style={{ marginBottom: '10px' }}>
-        <button onClick={() => setTool('text')}>Text</button>
-        <button onClick={() => setTool('pen')}>Pen</button>
-        <button onClick={() => setTool('eraser')}>Eraser</button>
-        <button onClick={() => { setDescription(''); setKonva([]); }}>Clear</button> {/* 状態をリセット */}
+      <div className="btn-group" style={{ marginBottom: '10px' }}>
+        <button className={tool === 'text' ? "btn btn-primary" : "btn btn-outline-primary"} onClick={() => setTool('text')}>Text</button>
+        <button className={tool === 'pen' ? "btn btn-primary" : "btn btn-outline-primary"} onClick={() => setTool('pen')}>Pen</button>
+        <button className={tool === 'eraser' ? "btn btn-primary" : "btn btn-outline-primary"} onClick={() => setTool('eraser')}>Eraser</button>
+        <button className="btn btn-outline-dark" onClick={() => { setDescription(''); setKonva([]); }}>Clear</button> {/* 状態をリセット */}
       </div>
 
       <div style={{ position: 'relative' }}>
