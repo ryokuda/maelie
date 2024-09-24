@@ -69,7 +69,7 @@ const Description = ({ description, setDescription, konva, setKonva }) => {
   }, [description]);
 
   const textareaCols = 40;
-  const textareaRows = 8;
+  const textareaRows = 25;
   const canvasWidth = textareaCols * 10; // cols * 10px
   const canvasHeight = textareaRows * 20; // rows * 20px
 
