@@ -12,22 +12,14 @@ const Description = forwardRef((props, ref) => {
   const isDrawing = useRef(false); // 現在描画中かどうかのフラグ
   const textAreaRef = useRef(null); // Textareaの参照
 
-  const getRelativePointerPosition = (stage) => {
-    const pos = stage.getPointerPosition();
-    return {
-      x: pos.x,
-      y: pos.y
-    };
-  };
-
   // 描画開始時のイベントハンドラー (タッチとマウスの両方をサポート)
   const handlePointerDown = (e) => {
     if (tool === 'pen') {
       isDrawing.current = true;
-      const pos = getRelativePointerPosition(e.target.getStage());
+      const pos = e.target.getStage().getPointerPosition();
       setLines([...lines, { tool, points: [pos.x, pos.y], strokeWidth: lineWidth }]);
     } else if (tool === 'eraser') {
-      const pos = getRelativePointerPosition(e.target.getStage());
+      const pos = e.target.getStage().getPointerPosition();
       const updatedLines = [...lines];
       for (let i = 0; i < updatedLines.length; i++) {
         const line = updatedLines[i];
@@ -50,7 +42,7 @@ const Description = forwardRef((props, ref) => {
   const handlePointerMove = (e) => {
     if (!isDrawing.current || tool === 'text') return;
 
-    const pos = getRelativePointerPosition(e.target.getStage());
+    const pos = e.target.getStage().getPointerPosition();
 
     if (tool === 'pen') {
       const lastLine = lines[lines.length - 1];
@@ -104,6 +96,12 @@ const Description = forwardRef((props, ref) => {
     })
   }));
 
+  // textareaのサイズに基づいてcanvasのサイズを設定
+  const textareaCols = 40;
+  const textareaRows = 8;
+  const canvasWidth = textareaCols * 10; // cols * 10px
+  const canvasHeight = textareaRows * 20; // rows * 20px
+
   return (
     <div>
       <div style={{ marginBottom: '10px' }}>
@@ -115,8 +113,8 @@ const Description = forwardRef((props, ref) => {
 
       <div style={{ position: 'relative' }}>
         <Stage
-          width={600}
-          height={400}
+          width={canvasWidth}
+          height={canvasHeight}
           style={{ border: '1px solid black', backgroundColor: 'transparent' }}
           onMouseDown={handlePointerDown}
           onTouchStart={handlePointerDown}
@@ -143,12 +141,14 @@ const Description = forwardRef((props, ref) => {
 
         <textarea
           ref={textAreaRef}
+          rows={textareaRows} // rowsを設定
+          cols={textareaCols} // colsを設定
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '600px',
-            height: '400px',
+            width: `${canvasWidth}px`,
+            height: `${canvasHeight}px`,
             backgroundColor: 'transparent',
             color: 'black',
             zIndex: isTextMode ? 1 : -1,
